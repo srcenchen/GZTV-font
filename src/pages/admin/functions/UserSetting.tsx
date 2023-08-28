@@ -24,9 +24,9 @@ function Settings() {
     const passwordMd5 = md5.appendStr(password).end();
     
     axios
-      .get("/api/changePassword?username=" + username + "&password=" + passwordMd5)
+      .get("/api/user/change-password?username=" + username + "&new_password=" + passwordMd5)
       .then((res) => {
-        if (res.data.result) {
+        if (res.data.code == 0) {
           Message.success("修改成功");
           sessionStorage.clear();
           window.location.href = "/login";

@@ -72,8 +72,8 @@ function passwordVerify(username: string, password: string) {
   };
 
   // 发送密码验证请求
-  axios.post("/api/verifyUser", data).then((res) => {
-    if (res.data.result) {
+  axios.post("/api/user/login-verify", data).then((res) => {
+    if (res.data.data.isSuccess) {
       sessionStorage.setItem("username", username);
       sessionStorage.setItem("password", passwordMd5);
       Message.success("Welcome" );
