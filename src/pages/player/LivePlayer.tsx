@@ -60,7 +60,7 @@ function Bodies(props: { liveDetail: any; loadSuccess: boolean }) {
     }
 
     // 判断是否有信号
-    if (props.liveDetail.LiveState !== "true" && props.loadSuccess) {
+    if (props.liveDetail.LiveState != true && props.loadSuccess) {
       alert("当前直播未开播");
       // 跳回直播大厅
       window.location.href = "/liveRoom";
@@ -95,9 +95,9 @@ function Bodies(props: { liveDetail: any; loadSuccess: boolean }) {
 
 // 获取数据详细信息
 function getLiveDetail(id: any, setLiveDetail: any, setLoadState: any) {
-  axios.get("/api/getLiveByID?id=" + id).then((res) => {
-    document.title = res.data.Title;
-    setLiveDetail(res.data);
+  axios.get("/api/live/get-live?id=" + id).then((res) => {
+    document.title = res.data.data.live.Title;
+    setLiveDetail(res.data.data.live);
     setLoadState(true);
   });
 }

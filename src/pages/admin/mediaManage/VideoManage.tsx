@@ -279,7 +279,7 @@ function VideoChoose(prop: {
     <div className="flex flex-col" style={{overflow: "hidden"}}>
       <label className="mb-1">上传视频</label>
       <Upload
-        action="/api/uploadVideo"
+        action="/api/upload/upload-video"
         ref={prop.videoRef}
         showUploadList={{
           startIcon: (
@@ -300,7 +300,7 @@ function VideoChoose(prop: {
         onChange={(e: any) => {
           try {
             if (e[0].status === "done") {
-              prop.setVideoName(e[0].response.file);
+              prop.setVideoName(e[0].response.data.fileName);
             }
           } catch (e) {}
           prop.setVideoSelected(true);
@@ -321,7 +321,7 @@ function ImageChoose(prop: {
       <label className="mb-1">上传封面</label>
       <Upload
         className="w-18"
-        action="/api/uploadImage"
+        action="/api/upload/upload-image"
         ref={prop.imageRef}
         listType="picture-card"
         limit={1}
@@ -330,7 +330,7 @@ function ImageChoose(prop: {
         onChange={(e: any) => {
           try {
             if (e[0].status === "done") {
-              prop.setImageName(e[0].response.fileName);
+              prop.setImageName(e[0].response.data.fileName);
             }
           } catch (e) {}
           prop.setImageSelected(true);

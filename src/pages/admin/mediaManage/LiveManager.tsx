@@ -159,13 +159,13 @@ function UploadLiveDialog(prop: {
   useEffect(() => {
     if (prop.imageName && prop.uploading) {
       axios
-        .post("/api/addLive", {
+        .post("/api/live/add-live", {
           title: prop.title,
           description: prop.description,
-          cover: prop.imageName,
+          head_image: prop.imageName,
         })
         .then((res) => {
-          if (res.data["message"] === "success") {
+          if (res.data.code == 0) {
             // 上传成功
             Message.success("发布成功");
             prop.setOpen(false);
@@ -267,7 +267,7 @@ function ImageChoose(prop: {
   return (
     <div className="flex flex-col">
       <Upload
-        action="/api/uploadImage"
+        action="/api/upload/upload-image"
         ref={prop.imageRef}
         listType="picture-card"
         limit={1}
@@ -276,7 +276,7 @@ function ImageChoose(prop: {
         onChange={(e: any) => {
           try {
             if (e[0].status === "done") {
-              prop.setImageName(e[0].response.fileName);
+              prop.setImageName(e[0].response.data.fileName);
             }
           } catch (e) {
           }
@@ -376,20 +376,20 @@ function DetailDialog(prop: { item: any }) {
 
 // 获取数据
 function getData(setData: any) {
-  axios.get("/api/getLives").then((res) => {
+  axios.get("/api/live/get-live-list").then((res) => {
     // 篡改uploadDate
-    res.data.forEach((item: any) => {
+    res.data.data.list.forEach((item: any) => {
       item.SubmitDate = item.SubmitDate.replace("T", " ").replace("Z", " ");
     });
     // res.data 反向排序
-    res.data.reverse();
-    setData(res.data);
+    res.data.data.list.reverse();
+    setData(res.data.data.list);
   });
 }
 
 // 删除直播
 function deleteLive(id: any, setData: any) {
-  axios.get("/api/deleteLive?id=" + id).then(() => {
+  axios.post("/api/live/delete-live?id=" + id).then(() => {
     getData(setData);
   });
 }

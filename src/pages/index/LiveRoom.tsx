@@ -51,7 +51,7 @@ function LiveList(props: { livesList: any }) {
                 <div className="flex flex-col justify-center md:ml-4 mt-1">
                   <div className="flex items-center">
                     <Title3>{item.Title}</Title3>
-                    {item.LiveState==="true" ? (
+                    {item.LiveState == true ? (
                       <Badge
                         appearance="filled"
                         className="ml-2"
@@ -89,10 +89,10 @@ function getLives(
   setLiveList: React.Dispatch<React.SetStateAction<never[]>>,
   setLoadSuccess: React.Dispatch<React.SetStateAction<boolean>>
 ) {
-  axios.get("/api/getLives").then((res) => {
+  axios.get("/api/live/get-live-list").then((res) => {
     // res.data 反向排序
-    res.data.reverse();
-    setLiveList(res.data);
+    res.data.data.list.reverse();
+    setLiveList(res.data.data.list);
     setLoadSuccess(true);
   });
 }
