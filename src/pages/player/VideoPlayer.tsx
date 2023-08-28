@@ -80,9 +80,9 @@ function Bodies(props: { videoDetail: any }) {
 
 // 获取数据详细信息
 function getVideoDetail(id: any, setVideoDetail: any) {
-  axios.get("/api/getVideoByID?id=" + id).then((res) => {
-    document.title = res.data.Title;
-    setVideoDetail(res.data);
+  axios.get("/api/video/get-video?id=" + id).then((res) => {
+    document.title = res.data.data.video.Title;
+    setVideoDetail(res.data.data.video);
   });
 }
 

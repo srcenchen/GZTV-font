@@ -68,10 +68,10 @@ function getVideos(
   setVideoList: React.Dispatch<React.SetStateAction<never[]>>,
   setLoadSuccess: React.Dispatch<React.SetStateAction<boolean>>
 ) {
-  axios.get("/api/getVideos").then((res) => {
+  axios.get("/api/video/get-video-list").then((res) => {
     // res.data 反向排序
-    res.data.reverse();
-    setVideoList(res.data);
+    res.data.data.list.reverse();
+    setVideoList(res.data.data.list);
     setLoadSuccess(true);
   });
 }

@@ -159,14 +159,14 @@ function UploadVideoDialog(prop: {
   useEffect(() => {
     if (prop.videoName && prop.imageName && prop.uploading) {
       axios
-        .post("/api/addVideo", {
+        .post("/api/video/add-video", {
           title: prop.title,
           description: prop.description,
-          video: prop.videoName,
-          cover: prop.imageName,
+          video_name: prop.videoName,
+          head_image: prop.imageName,
         })
         .then((res) => {
-          if (res.data["message"] === "success") {
+          if (res.data.code == 0) {
             // 上传成功
             Message.success("发布成功");
             prop.setVideoName("");
@@ -179,7 +179,7 @@ function UploadVideoDialog(prop: {
             prop.setUploading(false);
             getData(prop.setData);
           } else {
-            Message.error("发布失败");
+            Message.error("发布失败," + res.data.message);
             prop.setUploading(false);
           }
         });
@@ -378,20 +378,20 @@ function deleteConfirm(prop: { item: any; setData: any }) {
 
 // 获取数据
 function getData(setData: any) {
-  axios.get("/api/getVideos").then((res) => {
+  axios.get("/api/video/get-video-list").then((res) => {
     // 篡改uploadDate
-    res.data.forEach((item: any) => {
+    res.data.data.list.forEach((item: any) => {
       item.UploadDate = item.UploadDate.replace("T", " ").replace("Z", " ");
     });
     // res.data 反向排序
-    res.data.reverse();
-    setData(res.data);
+    res.data.data.list.reverse();
+    setData(res.data.data.list);
   });
 }
 
 // 删除视频
 function deleteVideo(id: any, setData: any) {
-  axios.get("/api/deleteVideo?id=" + id).then((res) => {
+  axios.post("/api/video/delete-video?id=" + id).then((res) => {
     console.log(res);
     getData(setData);
   });
