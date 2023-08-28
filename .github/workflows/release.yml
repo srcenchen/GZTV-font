@@ -31,8 +31,11 @@ jobs:
       - run: mv dist public
       - run: tar -czvf public.tar.gz public
       - name: Upload to release
-        uses: JasonEtco/upload-to-release@master
-        with:
-          args: public.tar.gz application/octet-stream
+        uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./public.tar.gz
+          asset_name: public.tar.gz
+          asset_content_type: application/gzip
