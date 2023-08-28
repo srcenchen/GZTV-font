@@ -12,8 +12,8 @@ function NoticePad() {
   const [data, setData] = React.useState("");
   const [loading, setLoading] = React.useState(true);
   useEffect(() => {
-    axios.get("/api/getNotice").then((res) => {
-      setData(res.data["Value"]);
+    axios.get("/api/setting/get-notice").then((res) => {
+      setData(res.data["data"]["notice"]);
       setLoading(false);
     });
   }, []);
@@ -33,8 +33,8 @@ function NoticePad() {
       </div>
       <div className="mt-2" />
       <Button className="w-0" onClick={() => {
-        axios.get("/api/updateNotice?content=" + data).then((res) => {
-          if (res.data.result) {
+        axios.get("/api/setting/set-notice?notice=" + data).then((res) => {
+          if (res.data.code == 0) {
             Message.success("修改成功");
           } else {
             Message.error("修改失败");

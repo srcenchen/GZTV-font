@@ -163,8 +163,9 @@ function Index() {
 // Notice 相关
 function noticePad() {
   // 获取notice
-  axios.get("/api/getNotice").then((res) => {
-    const data = res.data["Value"];
+  axios.get("/api/setting/get-notice").then((res) => {
+    console.log(res);
+    const data = res.data["data"]["notice"];
     if (data === "") return;
     Notification.success({
       title: "公告",
