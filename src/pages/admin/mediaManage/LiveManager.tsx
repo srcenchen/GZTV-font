@@ -88,7 +88,7 @@ function LiveManager() {
                   <TableCell>{item.Title}</TableCell>
                   <TableCell>{item.Description}</TableCell>
                   <TableCell>
-                    {item.LiveState === "true" ? (
+                    {item.LiveState == true ? (
                       <Badge appearance="filled" color="success">
                         直播中
                       </Badge>
