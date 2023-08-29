@@ -61,7 +61,7 @@ function Sider() {
     },
     {
       id: "/admin/systemSetting",
-      name: "系统管理",
+      name: "系统设置",
       icon: <LauncherSettings24Regular />,
     },
   ];
