@@ -100,7 +100,7 @@ function Bodies(props: {
     if (props.liveDetail.LiveState != true && props.loadSuccess) {
       alert("当前直播未开播");
       // 跳回直播大厅
-      // window.location.href = "/liveRoom";
+      window.location.href = "/liveRoom";
     }
   }, [props.liveDetail, props.pullMethod]);
   return (
