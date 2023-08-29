@@ -20,7 +20,7 @@ function NoticePad() {
   return (
     <div className="flex flex-col justify-center ml-2">
       <Title2 className="mb-2">{"公告管理"}</Title2>
-      <div className="flex flex-col mt-4">
+      <div className="flex flex-col mt-2">
         {loading ? (
           <ProgressBar />
         ) : (

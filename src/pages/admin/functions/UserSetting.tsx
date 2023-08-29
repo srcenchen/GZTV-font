@@ -41,7 +41,7 @@ function Settings() {
   );
   const [password, setPassword] = React.useState("");
   return (
-    <div className="flex flex-col lg:w-1/3 mt-4">
+    <div className="flex flex-col lg:w-1/3 mt-2">
       <Input
         placeholder="请输入用户名"
         value={username}

@@ -12,6 +12,7 @@ const VideoManager = lazy(() => import("../pages/admin/mediaManage/VideoManage")
 const LiveManager = lazy(() => import("../pages/admin/mediaManage/LiveManager"));
 const UserSetting = lazy(() => import("../pages/admin/functions/UserSetting"));
 const NoticePad = lazy(() => import("../pages/admin/functions/NoticePad"));
+const SystemSetting = lazy(() => import("../pages/admin/functions/SystemSetting"));
 
 const router = createBrowserRouter([
   {
@@ -109,6 +110,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense>
             <NoticePad />
+          </Suspense>
+        ),
+      },
+      {
+        path: "systemSetting",
+        element: (
+          <Suspense>
+            <SystemSetting />
           </Suspense>
         ),
       },

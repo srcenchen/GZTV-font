@@ -52,7 +52,7 @@ function Bodies(props: { videoDetail: any }) {
     }
   }, [props.videoDetail]);
   return (
-    <div className="flex flex-col items-center md:items-start md:ml-24 md:mr-24 ml-2 mr-2 mt-4">
+    <div className="flex flex-col items-center md:items-start md:ml-24 md:mr-24 mt-4">
       <Title3 className="mb-4">{props.videoDetail.Title}</Title3>
       <div className="w-full flex flex-col lg:flex-row">
         <video
@@ -62,7 +62,7 @@ function Bodies(props: { videoDetail: any }) {
           autoPlay
         ></video>
         <Card
-          className="lg:w-1/4 w-full lg:ml-4 mt-4 lg:mt-0"
+          className="lg:w-1/4 lg:ml-4 mt-4 lg:mt-0 ml-2 mr-2"
           appearance="outline"
         >
           <div className="flex flex-col flex-1">

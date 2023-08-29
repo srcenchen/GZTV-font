@@ -10,6 +10,7 @@ import {
   Notepad24Regular,
   PersonAccounts24Regular,
   VideoClip24Regular,
+  LauncherSettings24Regular
 } from "@fluentui/react-icons";
 
 function Sider() {
@@ -22,7 +23,7 @@ function Sider() {
 
   useEffect(() => {
     window.addEventListener("resize", updateWidth);
-    if (width < 591) {
+    if (width < 700) {
       setTabWidth("3.5rem");
     } else {
       setTabWidth("13.5rem");
@@ -30,7 +31,7 @@ function Sider() {
     return () => {
       window.removeEventListener("resize", updateWidth);
     };
-  }, []);
+  }, [width]);
 
   type Tabs = {
     id: string;
@@ -58,51 +59,59 @@ function Sider() {
       name: "用户管理",
       icon: <PersonAccounts24Regular />,
     },
+    {
+      id: "/admin/systemSetting",
+      name: "系统管理",
+      icon: <LauncherSettings24Regular />,
+    },
   ];
 
-  // 当width小于591时候，
-  if (width < 591) {
-    // 删除tabs中name属性
-    tabs.forEach((tab) => {
-      tab.name = "";
-    });
-  }
-
-  // 获取路由
-  const location = useLocation();
-  const [selectedTab, setSelectedTab] = React.useState(location.pathname);
-  React.useEffect(() => {
-    setSelectedTab(location.pathname);
-  }, [location.pathname]);
-
-  const navigate = useNavigate();
-
-  return (
-    <div className="flex-none lg:ml-32 ml-1 flex" style={{ width: tabWidth }}>
-      <TabList
-        vertical
-        defaultSelectedValue={selectedTab}
-        className="mt-2"
-        size="large"
-        onTabSelect={(_, data) => {
-          navigate(data.value as string);
-        }}
-      >
-        {tabs.map((tab) => (
-          <Tab
-            key={tab.id}
-            value={tab.id}
-            icon={tab.icon}
-            className="lg:w-48 md:w-48"
+    // 当width小于700时候，
+    if (width < 700) {
+      // 删除tabs中name属性
+      tabs.forEach((tab) => {
+        tab.name = "";
+      });
+    }
+  
+    // 获取路由
+    const location = useLocation();
+    const [selectedTab, setSelectedTab] = React.useState(location.pathname);
+    React.useEffect(() => {
+      setSelectedTab(location.pathname);
+    }, [location.pathname]);
+  
+    const navigate = useNavigate();
+  
+    return (
+      <div className="flex-none lg:ml-32 ml-1 flex" style={{ width: tabWidth }}>
+        <div className="flex flex-col items-center">
+          <TabList
+            vertical
+            defaultSelectedValue={selectedTab}
+            className="mt-2 flex-1"
+            size="large"
+            onTabSelect={(_, data) => {
+              navigate(data.value as string);
+            }}
           >
-            {tab.name}
-          </Tab>
-        ))}
-      </TabList>
-      <Divider vertical />
-    </div>
-  );
-}
+            {tabs.map((tab) => (
+              <Tab
+                key={tab.id}
+                value={tab.id}
+                icon={tab.icon}
+                className="lg:w-48 md:w-48"
+              >
+                {tab.name}
+              </Tab>
+            ))}
+          </TabList>
+        </div>
+  
+        <Divider vertical />
+      </div>
+    );
+  }
 
 function AdminUI() {
   const [outerHeight, setOuterHeight] = React.useState(window.innerHeight);
