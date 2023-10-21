@@ -46,7 +46,7 @@ function LiveList(props: { livesList: any }) {
               <div className="flex md:flex-row flex-col">
                 <img
                   src={"/resource/upload/images/" + item.HeadImage}
-                  className="rounded md:w-64 w-full"
+                  className="rounded md:w-64 w-full md:h-36"
                 />
                 <div className="flex flex-col justify-center md:ml-4 mt-1">
                   <div className="flex items-center">

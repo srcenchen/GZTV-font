@@ -9,6 +9,7 @@ const VideoPlayer = lazy(() => import("../pages/player/VideoPlayer"));
 const LivePlayer = lazy(() => import("../pages/player/LivePlayer"));
 const AdminUI = lazy(() => import("../pages/admin/AdminUI"));
 const VideoManager = lazy(() => import("../pages/admin/mediaManage/VideoManage"));
+const VideoGroupManager = lazy(() => import("../pages/admin/mediaManage/VideoGroupManager"));
 const LiveManager = lazy(() => import("../pages/admin/mediaManage/LiveManager"));
 const UserSetting = lazy(() => import("../pages/admin/functions/UserSetting"));
 const NoticePad = lazy(() => import("../pages/admin/functions/NoticePad"));
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
         <Index />
       </Suspense>
     ),
+    
     children: [
       {
         path: "onlineVideo",
@@ -42,7 +44,7 @@ const router = createBrowserRouter([
             <LiveRoom />
           </Suspense>
         ),
-      },
+      }
     ],
   },
   {
@@ -86,6 +88,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense>
             <VideoManager />
+          </Suspense>
+        ),
+      },
+      {
+        path: "videoGroupManager",
+        element: (
+          <Suspense>
+            <VideoGroupManager />
           </Suspense>
         ),
       },

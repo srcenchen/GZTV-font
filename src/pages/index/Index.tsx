@@ -162,6 +162,8 @@ function Index() {
 
 // Notice 相关
 function noticePad() {
+  if (window.location.pathname == "/videoGroup")
+    return;
   // 获取notice
   axios.get("/api/setting/get-notice").then((res) => {
     console.log(res);

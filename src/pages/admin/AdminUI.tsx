@@ -10,7 +10,8 @@ import {
   Notepad24Regular,
   PersonAccounts24Regular,
   VideoClip24Regular,
-  LauncherSettings24Regular
+  LauncherSettings24Regular,
+  GroupList24Regular
 } from "@fluentui/react-icons";
 
 function Sider() {
@@ -43,6 +44,11 @@ function Sider() {
       id: "/admin/videoManager",
       name: "视频管理",
       icon: <VideoClip24Regular />,
+    },
+    {
+      id: "/admin/videoGroupManager",
+      name: "分组管理",
+      icon: <GroupList24Regular />,
     },
     {
       id: "/admin/liveManager",

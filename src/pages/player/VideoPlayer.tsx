@@ -53,7 +53,7 @@ function Bodies(props: { videoDetail: any }) {
   }, [props.videoDetail]);
   return (
     <div className="flex flex-col items-center md:items-start md:ml-24 md:mr-24 mt-4">
-      <Title3 className="mb-4">{props.videoDetail.Title}</Title3>
+      <Title3 className="mb-4" style={{textAlign: "center"}} >{props.videoDetail.Title}</Title3>
       <div className="w-full flex flex-col lg:flex-row">
         <video
           id="videoPlayer"
