@@ -53,7 +53,11 @@ const routes = [
         path: 'system-manage',
         component: () => import('@/views/admin/SystemManage.vue'),
       }
-    ]
+    ],
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    redirect: "/online-video",
   }
 ]
 

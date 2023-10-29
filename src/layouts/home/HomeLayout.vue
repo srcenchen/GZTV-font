@@ -44,11 +44,11 @@ function noticePad() {
     const data = res.data["data"]["notice"];
     if (data === "") return;
     const toast = useToast();
-    toast.info(data, { timeout: 10000 });
+    toast.info(data);
   });
 }
 noticePad()
-document.title = "后台管理";
+document.title = "赣中电视台";
 </script>
 
 <style>
