@@ -17,7 +17,7 @@
     </div>
     <div v-else-if="!loading" class="flex flex-col justify-center items-center w-full">
       <v-icon size="x-large">mdi-inbox-outline</v-icon>
-      <div class="text-h6 font-weight-bold mt-2">啊嘞，这里毛也没有啊！</div>
+      <div class="text-h6 font-weight-bold mt-2">空空如也</div>
     </div>
   </div>
 </template>
