@@ -19,6 +19,7 @@ const uploading = ref(false)
 const detail_video_dialog = ref(false)
 const is_hide_main = ref(false)
 const is_hide_group = ref(false)
+const progress = ref(0)
 onMounted(() => {
   load()
 })
@@ -87,12 +88,21 @@ function upload() {
 // 先上传视频
   const formData = new FormData();
   formData.append("file", new_video.value[0]);
+
   axios.post("/api/upload/upload-video", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    onUploadProgress: function (progressEvent) {
+      // 计算上传进度
+      const percentCompleted = Math.round(
+        (progressEvent.loaded * 100) / progressEvent.total
+      );
+      console.log("视频上传进度：" + percentCompleted + "%");
+      progress.value = percentCompleted;
+    },
   }).then((res) => {
-    new_video_name.value = res.data.data.fileName
+    new_video_name.value = res.data.data.fileName;
   });
   const formDataZ = new FormData();
   formDataZ.append("file", new_cover.value[0]);
@@ -105,12 +115,17 @@ function upload() {
   });
 }
 
-function delete_video(item) {
+function delete_video(item, isActive) {
+  uploading.value = true;
   axios.post("/api/video/delete-video?id=" + item.Id).then(() => {
     load()
+    isActive.value = false;
+    const toast = useToast();
+    uploading.value = false;
+    toast.success("删除成功", {position: POSITION.TOP_CENTER, timeout: 1000});
   });
 }
-
+// 修改信息
 function edit(item, isActive) {
   if (new_title.value === "") {
     alert("请输入视频标题")
@@ -135,6 +150,7 @@ function edit(item, isActive) {
         // 上传成功
         const toast = useToast();
         toast.success("修改成功", {position: POSITION.TOP_CENTER, timeout: 1000});
+
         load()
       } else {
         const toast = useToast();
@@ -150,7 +166,13 @@ function edit(item, isActive) {
       is_hide_group.value = false;
     });
 }
-
+// 获取分组名
+function getGroup(item){
+  console.log(tabs.value);
+  const foundItem = tabs.value.find(items => items.abbr === item.GroupId);
+  return foundItem ? foundItem.state : '';
+}
+// 监听
 watchEffect(() => {
   if (new_video_name.value !== "" && new_cover_name.value !== "") {
     axios
@@ -174,6 +196,7 @@ watchEffect(() => {
           new_cover_name.value = "";
           new_select.value = -2;
           const toast = useToast();
+          progress.value = 0;
           toast.success("发布成功", {position: POSITION.TOP_CENTER, timeout: 1000});
           load();
         } else {
@@ -214,6 +237,11 @@ watchEffect(() => {
               <v-select :items="tabs" item-title="state" item-value="abbr" v-model="new_select"/>
               <v-file-input label="视频文件" accept="video/mp4, video/flv" v-model="new_video"></v-file-input>
               <v-file-input label="封面" accept="image/png, image/jpeg, image/bmp" v-model="new_cover"></v-file-input>
+              <div class="flex flex-col" v-if="uploading">
+                <v-progress-linear color="primary"  max="100" :model-value="progress"></v-progress-linear>
+                <p class="text-h6">上传进度: {{ progress }}%</p>
+              </div>
+
             </div>
           </v-card-text>
           <v-card-actions>
@@ -245,13 +273,14 @@ watchEffect(() => {
               <v-img :src="'/resource/upload/images/' + item.HeadImage" class="rounded aspect-video" cover/>
             </div>
             <div class="flex flex-col justify-center ml-2 grow">
+
               <p class="text-h6">{{ item.Title }}
                 <v-badge v-if="item.IsHideMain || item.IsHideGroup" :content="getContent(item)" color="info" class="ml-4"></v-badge>
               </p>
 
               <p class="text-body-2">{{ item.Description }}</p>
               <p class="text-body-2">{{ item.UploadDate.replace("Z", "").replace("T", " ") }}</p>
-
+              <p><v-badge :content="getGroup(item)" color="success" class="ml-2"></v-badge></p>
             </div>
             <div class="align-content-end flex lg:flex-col felx-auto items-center justify-center">
               <v-dialog
@@ -262,7 +291,7 @@ watchEffect(() => {
                     color="primary"
                     class="mr-2 mb-2"
                     v-bind="props"
-                    variant="outlined"
+                    variant="flat"
                     @click='new_title = item.Title; new_description = item.Description; new_select = item.GroupId; detail_video_dialog = true; is_hide_main = item.IsHideMain;is_hide_group = item.IsHideGroup'
                   >
                     详情
@@ -297,7 +326,45 @@ watchEffect(() => {
                   </v-card>
                 </template>
               </v-dialog>
-              <v-btn variant="outlined" class="mb-2 mr-2" @click="delete_video(item)">删除</v-btn>
+              <v-dialog
+                width="auto"
+              >
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    color="primary"
+                    class="mr-2 mb-2"
+                    v-bind="props"
+                    variant="outlined">
+                    删除
+                  </v-btn>
+                </template>
+                <template v-slot:default="{ isActive }">
+                  <v-card class="lg:w-256 w-78">
+                    <v-card-title class="text-h5">
+                      删除确认
+                    </v-card-title>
+                    <v-card-text>
+                        你确定要删除名为"{{ item.Title }}"的视频吗？此操作及其危险且不可逆！
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        variant="flat"
+                        @click="isActive.value = false"
+                      >
+                        取消
+                      </v-btn>
+                      <v-btn
+                        variant="text"
+                        :loading="uploading"
+                        @click="delete_video(item, isActive)"
+                      >
+                        确定
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+              </v-dialog>
             </div>
           </div>
         </v-card>

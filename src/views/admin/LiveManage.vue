@@ -60,11 +60,13 @@ function upload() {
   });
 }
 
-function delete_live(item) {
+function delete_live(item, isActive) {
   axios.post("/api/live/delete-live?id=" + item.Id).then(() => {
+    load()
     const toast = useToast();
     toast.success("删除成功", {position: POSITION.TOP_CENTER, timeout: 1000});
-    load()
+    isActive.value = false
+    uploading.value = false
   });
 }
 
@@ -174,7 +176,7 @@ watchEffect(() => {
                     color="primary"
                     class="mr-2 mb-2"
                     v-bind="props"
-                    variant="outlined"
+                    variant="flat"
                     @click='rtmp_url = "rtmp://" + host_name + ":1936/gztv/";live_code = item.StreamName;detail_live_dialog = true'
                   >
                     详情
@@ -204,7 +206,45 @@ watchEffect(() => {
                 </template>
 
               </v-dialog>
-              <v-btn variant="outlined" class="mb-2 mr-2" @click="delete_live(item)">删除</v-btn>
+              <v-dialog
+                width="auto"
+              >
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    color="primary"
+                    class="mr-2 mb-2"
+                    v-bind="props"
+                    variant="outlined">
+                    删除
+                  </v-btn>
+                </template>
+                <template v-slot:default="{ isActive }">
+                  <v-card class="lg:w-256 w-78">
+                    <v-card-title class="text-h5">
+                      删除确认
+                    </v-card-title>
+                    <v-card-text>
+                      你确定要删除名为"{{ item.Title }}"的直播吗？此操作及其危险且不可逆！
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        variant="flat"
+                        @click="isActive.value = false"
+                      >
+                        取消
+                      </v-btn>
+                      <v-btn
+                        variant="text"
+                        :loading="uploading"
+                        @click="delete_live(item, isActive)"
+                      >
+                        确定
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+              </v-dialog>
             </div>
           </div>
         </v-card>

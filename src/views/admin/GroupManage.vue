@@ -38,11 +38,14 @@ const headers = [
   {title: '操作', align: 'end', key: 'action'},
 ]
 
-function delete_group(item) {
+function delete_group(item,isActive) {
+  uploading.value = true
   axios.post("/api/video/delete-video?id=" + item.Id).then(() => {
     load()
     const toast = useToast();
-    toast.success("删除成功", {position: POSITION.TOP_CENTER , timeout: 10001});
+    toast.success("删除成功", {position: POSITION.TOP_CENTER, timeout: 1000});
+    isActive.value = false
+    uploading.value = false
   });
 }
 
@@ -124,12 +127,49 @@ function submit() {
         class="elevation-1"
       >
         <template v-slot:item.action="{item}">
-          <v-icon
-            size="small"
-            @click="delete_group(item)"
+
+          <v-dialog
+            width="auto"
           >
-            mdi-delete
-          </v-icon>
+            <template v-slot:activator="{ props }">
+              <v-btn
+                color="black"
+                class="mr-2 mb-2"
+                v-bind="props"
+                variant="text">
+                <v-icon
+                >
+                  mdi-delete
+                </v-icon>
+              </v-btn>
+            </template>
+            <template v-slot:default="{ isActive }">
+              <v-card class="lg:w-256 w-78">
+                <v-card-title class="text-h5">
+                  删除确认
+                </v-card-title>
+                <v-card-text>
+                  你确定要删除名为"{{ item.Title }}"的合辑吗？不过在此合辑内的视频不会丢失喔。此操作不可逆！
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    variant="flat"
+                    @click="isActive.value = false"
+                  >
+                    取消
+                  </v-btn>
+                  <v-btn
+                    variant="text"
+                    :loading="uploading"
+                    @click="delete_group(item, isActive)"
+                  >
+                    确定
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </template>
+          </v-dialog>
         </template>
       </v-data-table>
     </div>
