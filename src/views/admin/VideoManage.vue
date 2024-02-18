@@ -26,6 +26,10 @@ onMounted(() => {
 
 function load() {
   axios.get('/api/video/get-video-list').then((res) => {
+    // 将res.data.data.list 中GroupId强制转为Int类型
+    res.data.data.list.forEach((item) => {
+      item.GroupId = parseInt(item.GroupId)
+    })
     const video = res.data.data.list.filter((item) => {
       return item.GroupId !== -1;
     });

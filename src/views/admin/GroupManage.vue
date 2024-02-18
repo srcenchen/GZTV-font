@@ -15,6 +15,10 @@ const uploading = ref(false)
 
 function load() {
   axios.get('/api/video/get-video-list').then((res) => {
+    // 将res.data.data.list 中GroupId强制转为Int类型
+    res.data.data.list.forEach((item) => {
+      item.GroupId = parseInt(item.GroupId)
+    })
     tabs.value = res.data.data.list.filter((item) => {
       return item.GroupId === -1;
     });
@@ -69,6 +73,7 @@ function submit() {
     uploading.value = false
     const toast = useToast();
     toast.success("发布成功", {position: POSITION.TOP_CENTER, timeout: 1000});
+    new_title.value = ""
   });
 }
 </script>
@@ -149,7 +154,7 @@ function submit() {
                   删除确认
                 </v-card-title>
                 <v-card-text>
-                  你确定要删除名为"{{ item.Title }}"的合辑吗？不过在此合辑内的视频不会丢失喔。此操作不可逆！
+                  你确定要删除名为"{{ item.Title }}"的合辑吗？不过在此合辑内的视频不会丢失喔。此合辑下的视频会被移动到未分组。
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>

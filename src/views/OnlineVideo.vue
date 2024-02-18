@@ -14,8 +14,8 @@
             <div class="text-subtitle-2 ml-2 mr-2 truncate">{{ item.Title }}</div>
           </div>
           <div class="text-subtitle-2 font-weight-light ml-2 mb-2 mr-2 truncate">{{ item.Description }}</div>
-          <div class="flex items-center mt-2 mb-4 ml-4">
-            <v-badge :content="getGroup(item)" color="success"></v-badge>
+          <div class="flex items-center mt-2 mb-5 ml-4">
+            <v-badge :content="getGroup(item)" color="info"></v-badge>
           </div>
         </v-card>
       </div>
@@ -39,7 +39,10 @@ onMounted(() => {
   axios.get('/api/video/get-video-list').then((res) => {
     // res.data 反向排序
     // 注意 这里groupid -1 就代表这不是个视频 也就是分组
-
+    // 将res.data.data.list 中GroupId强制转为Int类型
+    res.data.data.list.forEach((item) => {
+      item.GroupId = parseInt(item.GroupId)
+    })
     const video = res.data.data.list.filter((item) => {
       return item.GroupId !== -1;
     });
