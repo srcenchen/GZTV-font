@@ -40,7 +40,7 @@ const mob = computed(() => {
 function noticePad() {
   // 获取notice
   axios.get("/api/setting/get-notice").then((res) => {
-    console.log(res);
+    // console.log(res);
     const data = res.data["data"]["notice"];
     if (data === "") return;
     const toast = useToast();

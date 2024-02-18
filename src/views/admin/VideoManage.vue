@@ -95,11 +95,9 @@ function upload() {
     },
     onUploadProgress: function (progressEvent) {
       // 计算上传进度
-      const percentCompleted = Math.round(
+      progress.value = Math.round(
         (progressEvent.loaded * 100) / progressEvent.total
       );
-      console.log("视频上传进度：" + percentCompleted + "%");
-      progress.value = percentCompleted;
     },
   }).then((res) => {
     new_video_name.value = res.data.data.fileName;
@@ -168,7 +166,7 @@ function edit(item, isActive) {
 }
 // 获取分组名
 function getGroup(item){
-  console.log(tabs.value);
+  // console.log(tabs.value);
   const foundItem = tabs.value.find(items => items.abbr === item.GroupId);
   return foundItem ? foundItem.state : '';
 }

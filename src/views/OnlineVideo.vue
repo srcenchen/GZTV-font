@@ -10,8 +10,13 @@
       <div v-for="item in items" :key="item.id" class="2xl:w-1/5 xl:w-1/4 lg:w-1/3 md:w-1/3 w-full pr-4 coil mb-2">
         <v-card @click="click_item(item)">
           <v-img :src="'/resource/upload/images/' + item.HeadImage" class="rounded w-full aspect-video" cover/>
-          <div class="text-subtitle-2 ml-2 mr-2 truncate mt-2">{{ item.Title }}</div>
+          <div class="flex items-center mt-2">
+            <div class="text-subtitle-2 ml-2 mr-2 truncate">{{ item.Title }}</div>
+          </div>
           <div class="text-subtitle-2 font-weight-light ml-2 mb-2 mr-2 truncate">{{ item.Description }}</div>
+          <div class="flex items-center mt-2 mb-4 ml-4">
+            <v-badge :content="getGroup(item)" color="success"></v-badge>
+          </div>
         </v-card>
       </div>
     </div>
@@ -52,14 +57,14 @@ onMounted(() => {
 const router = useRouter()
 
 function click_item(item) {
-  console.log(item.Id)
+  // console.log(item.Id)
   router.push("/video-player/?id=" + item.Id)
 }
 
 const group_id = ref(-2)
 
 watchEffect(() => {
-  console.log(group_id.value)
+  // console.log(group_id.value)
   if (group_id.value === 0) {
     items.value = item_temp.value.filter((item) => {
       return item.GroupId !== -1 && item.IsHideMain !== true;
@@ -70,4 +75,15 @@ watchEffect(() => {
     });
   }
 })
+// 获取分组名
+function getGroup(item){
+  if (item.GroupId === -2) {
+    return "未分组"
+  } else {
+    return tabs.value.find((tab) => {
+      return tab.Id === item.GroupId
+    }).Title
+  }
+}
+
 </script>

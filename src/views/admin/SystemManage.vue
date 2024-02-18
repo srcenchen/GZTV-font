@@ -19,7 +19,7 @@ onMounted(() => {
 })
 watchEffect(() => {
   axios.get('/api/setting/set-pull-setting?pull_setting=' + radios.value).then(res => {
-
+    res
   })
 })
 
