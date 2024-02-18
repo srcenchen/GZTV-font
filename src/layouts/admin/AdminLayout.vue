@@ -57,7 +57,7 @@ const tabs = [{
 }]
 
 const toast = useToast();
-toast.success("Welcome");
+toast.success("Welcome", {timeout: 2000});
 document.title = "后台管理";
 </script>
 

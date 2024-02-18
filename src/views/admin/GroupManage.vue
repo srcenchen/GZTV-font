@@ -1,10 +1,9 @@
 <script setup>
 import {
   VDataTable,
-  VDataTableServer,
-  VDataTableVirtual,
+
 } from "vuetify/labs/VDataTable";
-import {onMounted, ref, watchEffect} from "vue";
+import {onMounted, ref} from "vue";
 import axios from "axios";
 import {POSITION, useToast} from "vue-toastification";
 
@@ -43,7 +42,7 @@ function delete_group(item) {
   axios.post("/api/video/delete-video?id=" + item.Id).then(() => {
     load()
     const toast = useToast();
-    toast.success("删除成功", {position: POSITION.TOP_CENTER});
+    toast.success("删除成功", {position: POSITION.TOP_CENTER , timeout: 10001});
   });
 }
 
@@ -61,12 +60,12 @@ function submit() {
       description: "description",
       video_name: "videoName",
       head_image: "imageName",
-    }).then((res) => {
+    }).then(() => {
     load()
     detail_group_dialog.value = false
     uploading.value = false
     const toast = useToast();
-    toast.success("发布成功", {position: POSITION.TOP_CENTER});
+    toast.success("发布成功", {position: POSITION.TOP_CENTER, timeout: 1000});
   });
 }
 </script>

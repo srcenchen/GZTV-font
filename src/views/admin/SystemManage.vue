@@ -36,12 +36,12 @@ function change_password() {
     .then((res) => {
       if (res.data.code === 0) {
         const toast = useToast();
-        toast.success("修改成功", {position: POSITION.TOP_CENTER});
+        toast.success("修改成功", {position: POSITION.TOP_CENTER, timeout: 1000});
         sessionStorage.clear();
         window.location.href = "/";
       } else {
         const toast = useToast();
-        toast.error("修改失败", {position: POSITION.TOP_CENTER});
+        toast.error("修改失败", {position: POSITION.TOP_CENTER, timeout: 1000});
       }
     });
 }

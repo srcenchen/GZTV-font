@@ -44,8 +44,9 @@ function noticePad() {
     const data = res.data["data"]["notice"];
     if (data === "") return;
     const toast = useToast();
-    toast.info(data);
+    toast.info(data, {timeout: 2000});
   });
+
 }
 noticePad()
 document.title = "赣中电视台";

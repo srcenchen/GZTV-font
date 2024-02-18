@@ -51,12 +51,12 @@ export default defineConfig({
     port: 3000,
     proxy:{
       "/api": {
-        target: "http://192.168.2.85:6020/api",
+        target: "http://192.168.1.56:6020/api",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "/resource": {
-        target: "http://192.168.2.85:6020/resource",
+        target: "http://192.168.1.56:6020/resource",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/resource/, ""),
       },

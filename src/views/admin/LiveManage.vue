@@ -63,7 +63,7 @@ function upload() {
 function delete_live(item) {
   axios.post("/api/live/delete-live?id=" + item.Id).then(() => {
     const toast = useToast();
-    toast.success("删除成功", {position: POSITION.TOP_CENTER});
+    toast.success("删除成功", {position: POSITION.TOP_CENTER, timeout: 1000});
     load()
   });
 }
@@ -86,11 +86,11 @@ watchEffect(() => {
           new_cover.value = "";
           new_cover_name.value = "";
           const toast = useToast();
-          toast.success("发布成功", {position: POSITION.TOP_CENTER});
+          toast.success("发布成功", {position: POSITION.TOP_CENTER, timeout: 1000});
           load();
         } else {
           const toast = useToast();
-          toast.error("发布失败", {position: POSITION.TOP_CENTER});
+          toast.error("发布失败", {position: POSITION.TOP_CENTER, timeout: 1000});
         }
         uploading.value = false;
       });

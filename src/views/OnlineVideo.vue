@@ -33,7 +33,7 @@ const loading = ref(true)
 onMounted(() => {
   axios.get('/api/video/get-video-list').then((res) => {
     // res.data 反向排序
-    // 只展示 group_id = -2 和 -1 的视频
+    // 注意 这里groupid -1 就代表这不是个视频 也就是分组
 
     const video = res.data.data.list.filter((item) => {
       return item.GroupId !== -1;
@@ -62,11 +62,11 @@ watchEffect(() => {
   console.log(group_id.value)
   if (group_id.value === 0) {
     items.value = item_temp.value.filter((item) => {
-      return item.GroupId !== -1;
+      return item.GroupId !== -1 && item.IsHideMain !== true;
     });
   } else {
     items.value = item_temp.value.filter((item) => {
-      return item.GroupId === tabs.value[group_id.value - 1].Id;
+      return item.GroupId === tabs.value[group_id.value - 1].Id && item.IsHideGroup !== true;
     });
   }
 })

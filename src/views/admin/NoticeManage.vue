@@ -15,9 +15,9 @@ function submit() {
     const toast = useToast();
     if (res.data.code === 0) {
       // Use it!
-      toast.success("设置成功", {position: POSITION.TOP_CENTER});
+      toast.success("设置成功", {position: POSITION.TOP_CENTER, timeout: 1000});
     } else {
-      toast.error("操作失败", {position: POSITION.TOP_CENTER});
+      toast.error("操作失败", {position: POSITION.TOP_CENTER, timeout: 1000});
     }
   })
 }

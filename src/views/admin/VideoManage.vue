@@ -17,6 +17,8 @@ const new_video_name = ref("")
 const new_cover_name = ref("")
 const uploading = ref(false)
 const detail_video_dialog = ref(false)
+const is_hide_main = ref(false)
+const is_hide_group = ref(false)
 onMounted(() => {
   load()
 })
@@ -50,6 +52,17 @@ function load() {
     loading.value = false
   })
 
+}
+function getContent(item) {
+  if (item.IsHideMain && item.IsHideGroup) {
+    return "首页、分组隐藏";
+  } else if (item.IsHideMain) {
+    return "首页隐藏";
+  } else if (item.IsHideGroup) {
+    return "分组隐藏";
+  } else {
+    return "";
+  }
 }
 
 function upload() {
@@ -114,16 +127,18 @@ function edit(item, isActive) {
       description: new_description.value,
       id: item.Id,
       group_id: new_select.value,
+      is_hide_main: is_hide_main.value,
+      is_hide_group: is_hide_group.value,
     })
     .then((res) => {
       if (res.data.code === 0) {
         // 上传成功
         const toast = useToast();
-        toast.success("修改成功", {position: POSITION.TOP_CENTER});
+        toast.success("修改成功", {position: POSITION.TOP_CENTER, timeout: 1000});
         load()
       } else {
         const toast = useToast();
-        toast.error("修改失败", {position: POSITION.TOP_CENTER});
+        toast.error("修改失败", {position: POSITION.TOP_CENTER, timeout: 1000});
       }
       // 善后
       uploading.value = false;
@@ -131,7 +146,8 @@ function edit(item, isActive) {
       new_title.value = "";
       new_description.value = "";
       new_select.value = -2;
-
+      is_hide_main.value = false;
+      is_hide_group.value = false;
     });
 }
 
@@ -158,11 +174,11 @@ watchEffect(() => {
           new_cover_name.value = "";
           new_select.value = -2;
           const toast = useToast();
-          toast.success("发布成功", {position: POSITION.TOP_CENTER});
+          toast.success("发布成功", {position: POSITION.TOP_CENTER, timeout: 1000});
           load();
         } else {
           const toast = useToast();
-          toast.error("发布失败," + res.data.message, {position: POSITION.TOP_CENTER});
+          toast.error("发布失败," + res.data.message, {position: POSITION.TOP_CENTER, timeout: 1000});
         }
         uploading.value = false;
       });
@@ -182,7 +198,6 @@ watchEffect(() => {
         <template v-slot:activator="{ props }">
           <v-btn
             color="primary"
-
             v-bind="props"
           >
             发布视频
@@ -230,9 +245,13 @@ watchEffect(() => {
               <v-img :src="'/resource/upload/images/' + item.HeadImage" class="rounded aspect-video" cover/>
             </div>
             <div class="flex flex-col justify-center ml-2 grow">
-              <p class="text-h6">{{ item.Title }}</p>
+              <p class="text-h6">{{ item.Title }}
+                <v-badge v-if="item.IsHideMain || item.IsHideGroup" :content="getContent(item)" color="info" class="ml-4"></v-badge>
+              </p>
+
               <p class="text-body-2">{{ item.Description }}</p>
               <p class="text-body-2">{{ item.UploadDate.replace("Z", "").replace("T", " ") }}</p>
+
             </div>
             <div class="align-content-end flex lg:flex-col felx-auto items-center justify-center">
               <v-dialog
@@ -244,7 +263,7 @@ watchEffect(() => {
                     class="mr-2 mb-2"
                     v-bind="props"
                     variant="outlined"
-                    @click='new_title = item.Title; new_description = item.Description; new_select = item.GroupId; detail_video_dialog = true'
+                    @click='new_title = item.Title; new_description = item.Description; new_select = item.GroupId; detail_video_dialog = true; is_hide_main = item.IsHideMain;is_hide_group = item.IsHideGroup'
                   >
                     详情
                   </v-btn>
@@ -259,6 +278,10 @@ watchEffect(() => {
                         <v-text-field hint="请输入视频标题" label="视频标题" v-model="new_title"></v-text-field>
                         <v-text-field hint="请输入视频简介" label="视频简介" v-model="new_description"></v-text-field>
                         <v-select :items="tabs" item-title="state" item-value="abbr" v-model="new_select"/>
+                        <div class="flex">
+                          <v-switch color="primary" label="在首页中隐藏" v-model="is_hide_main"></v-switch>
+                          <v-switch color="primary" label="在分组中隐藏" v-model="is_hide_group"></v-switch>
+                        </div>
                       </div>
                     </v-card-text>
                     <v-card-actions>
