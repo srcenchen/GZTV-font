@@ -36,7 +36,6 @@
 import { useDisplay } from 'vuetify'
 import { ref, computed } from 'vue'
 import md5 from 'md5'
-const props = defineProps(['is_login', 'is_show'])
 const emit = defineEmits(['update:is_show'])
 const { mobile } = useDisplay()
 const is_mob = computed(() => {
@@ -49,7 +48,7 @@ const password = ref('')
 
 function check() {
   // 判断sessionStorage中是否有账号密码
-  if (sessionStorage.getItem("username") && sessionStorage.getItem("password")) {
+  if (localStorage.getItem("username") && localStorage.getItem("password")) {
     router.push("/admin")
     return
   }
@@ -67,8 +66,8 @@ function login() {
   // 发送密码验证请求
   axios.post("/api/user/login-verify", data).then((res) => {
     if (res.data.data.isSuccess) {
-      sessionStorage.setItem("username", username.value);
-      sessionStorage.setItem("password", password.value);
+      localStorage.setItem("username", username.value);
+      localStorage.setItem("password", password.value);
       dialog.value = false;
       router.push("/admin")
     } else {

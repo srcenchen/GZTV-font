@@ -1,13 +1,14 @@
 <script setup>
-import {onMounted, ref, watchEffect} from "vue";
+import {onMounted, ref, watch, watchEffect} from "vue";
 import axios from "axios";
 import {POSITION, useToast} from "vue-toastification";
+import {Search} from "@element-plus/icons-vue";
 
+const tab_item = ref([])
 const tabs = ref([])
 const items = ref([])
-const item_temp = ref([])
 const loading = ref(true)
-const new_video_dialog = ref(false)
+const view_select_value = ref(-3)
 const new_select = ref(-2)
 const new_title = ref("")
 const new_description = ref("")
@@ -20,11 +21,38 @@ const detail_video_dialog = ref(false)
 const is_hide_main = ref(false)
 const is_hide_group = ref(false)
 const progress = ref(0)
+const submit_video_dialog = ref(false)
+const group_data_view = ref()
 onMounted(() => {
   load()
 })
+const group_data = ref([])
+const m_item = ref()
+const item_temp = ref()
 
+const search_value = ref('')
 function load() {
+  // 递归函数，将扁平结构的数组转换成具有层级关系的数组
+  function convertToTree(data, parentId) {
+    const result = [];
+    data.forEach((item) => {
+      if (item.ParentGroup === parentId) {
+        const children = convertToTree(data, item.Id.toString());
+        const newItem = {
+          value: item.Id,
+          label: item.Title,
+          parentGroup: item.ParentGroup
+        };
+        if (children.length > 0) {
+          newItem.children = children;
+        }
+        result.push(newItem);
+      }
+    });
+    return result;
+  }
+
+
   axios.get('/api/video/get-video-list').then((res) => {
     // 将res.data.data.list 中GroupId强制转为Int类型
     res.data.data.list.forEach((item) => {
@@ -34,30 +62,41 @@ function load() {
       return item.GroupId !== -1;
     });
     video.reverse();
-    const group = res.data.data.list.filter((item) => {
-      return item.GroupId === -1;
-    });
+    item_temp.value = video
     // group.reverse();
     items.value = video;
-    tabs.value = group;
-    item_temp.value = video;
-    // 将tabs转为select的items 以及将state和abbr赋值 清空其他属性
-    tabs.value = tabs.value.map((item) => {
-      return {
-        state: item.Title,
-        abbr: item.Id,
-      };
-    });
-    // 在tabs前面添加一个全部选项
-    tabs.value.unshift({
-      state: "未分组",
-      abbr: -2,
-    });
-    console.log(tabs.value)
+
     loading.value = false
   })
 
+  axios.get('/api/video/get-video-group-list').then((res) => {
+    // 将res.data.data.list 中GroupId强制转为Int类型
+    res.data.data.list.forEach((item) => {
+      item.GroupId = parseInt(item.GroupId)
+    })
+    tabs.value = res.data.data.list
+
+    // 将扁平结构的数组转换成具有层级关系的数组
+    group_data.value = convertToTree(res.data.data.list, "-1");
+    group_data.value.unshift(
+      {
+        value: -2,
+        label: "未分组"
+      }
+    )
+    group_data_view.value = group_data.value
+    group_data_view.value.unshift(
+      {
+        value: -3,
+        label: "全部视频"
+      }
+    )
+    console.log(group_data)
+    loading.value = false;
+  })
+
 }
+
 function getContent(item) {
   if (item.IsHideMain && item.IsHideGroup) {
     return "首页、分组隐藏";
@@ -127,8 +166,15 @@ function delete_video(item, isActive) {
     toast.success("删除成功", {position: POSITION.TOP_CENTER, timeout: 1000});
   });
 }
+
+watch(search_value, (newValue, oldValue) => {
+  items.value = tab_item.value.filter(item => {
+    return item.Title.includes(newValue) || item.Description.includes(newValue);
+  });
+});
+
 // 修改信息
-function edit(item, isActive) {
+function edit(item) {
   if (new_title.value === "") {
     alert("请输入视频标题")
     return
@@ -160,7 +206,7 @@ function edit(item, isActive) {
       }
       // 善后
       uploading.value = false;
-      isActive.value = false;
+      detail_video_dialog.value = false;
       new_title.value = "";
       new_description.value = "";
       new_select.value = -2;
@@ -168,12 +214,21 @@ function edit(item, isActive) {
       is_hide_group.value = false;
     });
 }
-// 获取分组名
-function getGroup(item){
-  // console.log(tabs.value);
-  const foundItem = tabs.value.find(items => items.abbr === item.GroupId);
-  return foundItem ? foundItem.state : '';
+
+function getGroup(item) {
+  try {
+    if (item.GroupId === -2) {
+      return "未分组"
+    } else {
+      return tabs.value.find((tab) => {
+        return tab.Id === item.GroupId
+      }).Title
+    }
+  } catch (e) {
+    return '子分类'
+  }
 }
+
 // 监听
 watchEffect(() => {
   if (new_video_name.value !== "" && new_cover_name.value !== "") {
@@ -189,7 +244,7 @@ watchEffect(() => {
         if (res.data.code === 0) {
           // 上传成功
           // 善后
-          new_video_dialog.value = false;
+          submit_video_dialog.value = false;
           new_title.value = "";
           new_description.value = "";
           new_video.value = "";
@@ -209,169 +264,176 @@ watchEffect(() => {
       });
   }
 })
+
+watch(view_select_value, (newValue, oldValue) => {
+  // console.log(group_id.value)
+  if (newValue === -3) {
+    items.value = item_temp.value
+  } else {
+    items.value = item_temp.value.filter((item) => {
+      return item.GroupId === newValue
+    });
+  }
+  tab_item.value = items.value
+})
+
 </script>
 
 <template>
   <div className="flex flex-col m-5">
-    <h2>视频管理</h2>
-    <div class="mt-2">
-      <v-dialog
-        v-model="new_video_dialog"
-        persistent
-        width="auto"
-      >
-        <template v-slot:activator="{ props }">
-          <v-btn
-            color="primary"
-            v-bind="props"
-          >
-            发布视频
-          </v-btn>
-        </template>
-        <v-card class="lg:w-256 w-78">
-          <v-card-title class="text-h5">
-            发布视频
-          </v-card-title>
-          <v-card-text>
-            <div class="flex flex-col">
-              <v-text-field hint="请输入视频标题" label="视频标题" v-model="new_title"></v-text-field>
-              <v-text-field hint="请输入视频简介" label="视频简介" v-model="new_description"></v-text-field>
-              <v-select :items="tabs" item-title="state" item-value="abbr" v-model="new_select"/>
-              <v-file-input label="视频文件" accept="video/mp4, video/flv" v-model="new_video"></v-file-input>
-              <v-file-input label="封面" accept="image/png, image/jpeg, image/bmp" v-model="new_cover"></v-file-input>
-              <div class="flex flex-col" v-if="uploading">
-                <v-progress-linear color="primary"  max="100" :model-value="progress"></v-progress-linear>
-                <p class="text-h6">上传进度: {{ progress }}%</p>
-              </div>
-
-            </div>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              variant="text"
-              @click="new_video_dialog = false"
-              :disabled="uploading"
-            >
-              取消
-            </v-btn>
-            <v-btn
-              variant="text"
-              :loading="uploading"
-              @click="upload"
-            >
-              发布
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+    <div class="flex">
+      <h2>视频管理</h2>
+      <el-input style="width: 240px" class="ml-4" placeholder="在当前页搜索" :prefix-icon="Search" v-model="search_value"></el-input>
     </div>
 
-    <div class="flex flex-col">
-      <div v-bind:key="item.Id" v-for="item in items" class="mt-2 overflow">
-        <v-card class="mt-2 lg:h-32 w-full">
-          <div class="lg:flex w-full h-full">
-            <div class="flex lg:w-64 w-32 h-full">
-              <v-img :src="'/resource/upload/images/' + item.HeadImage" class="rounded aspect-video" cover/>
-            </div>
-            <div class="flex flex-col justify-center ml-2 grow">
+    <el-tree-select :data="group_data" v-model="view_select_value" check-strictly :render-after-expand="false"/>
+    <div class="mt-2">
+      <el-button
+        v-bind="props"
+        @click="submit_video_dialog = true; new_select = view_select_value"
+      >
+        发布视频
+      </el-button>
+    </div>
 
-              <p class="text-h6">{{ item.Title }}
-                <v-badge v-if="item.IsHideMain || item.IsHideGroup" :content="getContent(item)" color="info" class="ml-4"></v-badge>
-              </p>
-
-              <p class="text-body-2">{{ item.Description }}</p>
-              <p class="text-body-2">{{ item.UploadDate.replace("Z", "").replace("T", " ") }}</p>
-              <p><v-badge :content="getGroup(item)" color="success" class="ml-2"></v-badge></p>
+    <div class="flex flex-col mt-2">
+      <div class="flex flex-wrap">
+        <div v-for="item in items" :key="item.id" class="2xl:w-1/5 xl:w-1/4 lg:w-1/3 md:w-1/3 w-full pr-4 coil mb-2">
+          <v-card>
+            <v-img :src="'/resource/upload/images/' + item.HeadImage " class="rounded w-full aspect-video" cover v-if="!item.ParentGroup"/>
+            <v-img src="@/assets/file_logo.png" class="rounded w-full aspect-video" v-else/>
+            <div class="flex items-center mt-2">
+              <div class="text-subtitle-2 ml-2 mr-2 truncate">{{ item.Title }}</div>
+              <v-badge v-if="item.IsHideMain || item.IsHideGroup" :content="getContent(item)" color="info" class="ml-2"></v-badge>
             </div>
-            <div class="align-content-end flex lg:flex-col felx-auto items-center justify-center">
-              <v-dialog
-                width="auto"
-              >
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    color="primary"
-                    class="mr-2 mb-2"
-                    v-bind="props"
-                    variant="flat"
-                    @click='new_title = item.Title; new_description = item.Description; new_select = item.GroupId; detail_video_dialog = true; is_hide_main = item.IsHideMain;is_hide_group = item.IsHideGroup'
-                  >
-                    详情
-                  </v-btn>
-                </template>
-                <template v-slot:default="{ isActive }">
-                  <v-card class="lg:w-256 w-78">
-                    <v-card-title class="text-h5">
-                      视频详情
-                    </v-card-title>
-                    <v-card-text>
-                      <div class="flex flex-col">
-                        <v-text-field hint="请输入视频标题" label="视频标题" v-model="new_title"></v-text-field>
-                        <v-text-field hint="请输入视频简介" label="视频简介" v-model="new_description"></v-text-field>
-                        <v-select :items="tabs" item-title="state" item-value="abbr" v-model="new_select"/>
-                        <div class="flex">
-                          <v-switch color="primary" label="在首页中隐藏" v-model="is_hide_main"></v-switch>
-                          <v-switch color="primary" label="在分组中隐藏" v-model="is_hide_group"></v-switch>
-                        </div>
-                      </div>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        variant="text"
-                        :loading="uploading"
-                        @click="edit(item, isActive)"
-                      >
-                        确定
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </template>
-              </v-dialog>
-              <v-dialog
-                width="auto"
-              >
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    color="primary"
-                    class="mr-2 mb-2"
-                    v-bind="props"
-                    variant="outlined">
-                    删除
-                  </v-btn>
-                </template>
-                <template v-slot:default="{ isActive }">
-                  <v-card class="lg:w-256 w-78">
-                    <v-card-title class="text-h5">
-                      删除确认
-                    </v-card-title>
-                    <v-card-text>
+            <div class="text-subtitle-2 font-weight-light ml-2 mr-2 truncate">{{ item.Description }}</div>
+            <div class="text-subtitle-2 font-weight-light ml-2 mb-2 mr-2 truncate">{{ item.UploadDate.replace("Z", "").replace("T", " ") }}</div>
+            <div class="flex items-center mt-2 mb-5 ml-4 w-100">
+              <v-badge :content="getGroup(item)" color="success"></v-badge>
+
+            </div>
+            <div class="flex items-center justify-center">
+              <div class="align-content-end flex items-center justify-center">
+                <v-btn
+                  color="primary"
+                  class="mr-2 mb-2"
+                  v-bind="props"
+                  variant="flat"
+                  @click='m_item = item; new_title = item.Title; new_description = item.Description; new_select = item.GroupId; detail_video_dialog = true; is_hide_main = item.IsHideMain;is_hide_group = item.IsHideGroup'
+                >
+                  详情
+                </v-btn>
+                <v-dialog
+                  width="auto"
+                >
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      color="primary"
+                      class="mr-2 mb-2"
+                      v-bind="props"
+                      variant="outlined">
+                      删除
+                    </v-btn>
+                  </template>
+                  <template v-slot:default="{ isActive }">
+                    <v-card class="lg:w-256 w-78">
+                      <v-card-title class="text-h5">
+                        删除确认
+                      </v-card-title>
+                      <v-card-text>
                         你确定要删除名为"{{ item.Title }}"的视频吗？此操作及其危险且不可逆！
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        variant="flat"
-                        @click="isActive.value = false"
-                      >
-                        取消
-                      </v-btn>
-                      <v-btn
-                        variant="text"
-                        :loading="uploading"
-                        @click="delete_video(item, isActive)"
-                      >
-                        确定
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </template>
-              </v-dialog>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          variant="flat"
+                          @click="isActive.value = false"
+                        >
+                          取消
+                        </v-btn>
+                        <v-btn
+                          variant="text"
+                          :loading="uploading"
+                          @click="delete_video(item, isActive)"
+                        >
+                          确定
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </template>
+                </v-dialog>
+              </div>
             </div>
-          </div>
-        </v-card>
+          </v-card>
+        </div>
       </div>
     </div>
+
+
+    <el-dialog
+      v-model="submit_video_dialog"
+      title="视频详情"
+      :close-on-click-modal="false"
+    >
+      <div class="flex flex-col">
+        <div class="flex flex-col">
+          <v-text-field hint="请输入视频标题" label="视频标题" v-model="new_title"></v-text-field>
+          <v-text-field hint="请输入视频简介" label="视频简介" v-model="new_description"></v-text-field>
+          <v-file-input label="视频文件" accept="video/mp4, video/flv" v-model="new_video"></v-file-input>
+          <v-file-input label="封面" accept="image/png, image/jpeg, image/bmp" v-model="new_cover"></v-file-input>
+          <el-tree-select :data="group_data" v-model="new_select" check-strictly :render-after-expand="false"/>
+          <div class="flex flex-col" v-if="uploading">
+            <v-progress-linear color="primary" max="100" :model-value="progress"></v-progress-linear>
+            <p class="text-h6">上传进度: {{ progress }}%</p>
+          </div>
+
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <v-btn
+            variant="text"
+            @click="submit_video_dialog = false"
+            :disabled="uploading"
+          >
+            取消
+          </v-btn>
+          <v-btn
+            variant="text"
+            :loading="uploading"
+            @click="upload"
+          >
+            发布
+          </v-btn>
+        </div>
+      </template>
+    </el-dialog>
+
+
+    <el-dialog
+      v-model="detail_video_dialog"
+      title="视频详情"
+    >
+      <div class="flex flex-col">
+        <div class="flex flex-col">
+          <v-text-field hint="请输入视频标题" label="视频标题" v-model="new_title"></v-text-field>
+          <v-text-field hint="请输入视频简介" label="视频简介" v-model="new_description"></v-text-field>
+          <!--                        <v-select :items="tabs" item-title="state" item-value="abbr" v-model="new_select"/>-->
+          <el-tree-select :data="group_data" v-model="new_select" check-strictly :render-after-expand="false"/>
+          <div class="flex">
+            <v-switch color="primary" label="在首页中隐藏" v-model="is_hide_main"></v-switch>
+            <v-switch color="primary" label="在分组中隐藏" v-model="is_hide_group"></v-switch>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="edit(m_item)" :loading="uploading">
+            确认
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 
 </template>

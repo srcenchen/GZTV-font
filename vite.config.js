@@ -3,6 +3,9 @@ import vue from '@vitejs/plugin-vue'
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import ViteFonts from 'unplugin-fonts/vite'
 import UnoCSS from 'unocss/vite'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // Utilities
 import { defineConfig } from 'vite'
@@ -15,6 +18,12 @@ export default defineConfig({
       template: { transformAssetUrls }
     }),
     UnoCSS(),
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+    }),
+    Components({
+      resolvers: [ElementPlusResolver()],
+    }),
     // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
     vuetify({
       autoImport: true,
@@ -51,12 +60,12 @@ export default defineConfig({
     port: 3000,
     proxy:{
       "/api": {
-        target: "http://192.168.1.56:6020/api",
+        target: "http://192.168.2.26:6020/api",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "/resource": {
-        target: "http://192.168.1.56:6020/resource",
+        target: "http://192.168.2.26:6020/resource",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/resource/, ""),
       },

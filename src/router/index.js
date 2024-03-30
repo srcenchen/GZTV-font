@@ -46,10 +46,6 @@ const routes = [
         component: () => import('@/views/admin/LiveManage.vue'),
       },
       {
-        path: 'notice-manage',
-        component: () => import('@/views/admin/NoticeManage.vue'),
-      },
-      {
         path: 'system-manage',
         component: () => import('@/views/admin/SystemManage.vue'),
       }
@@ -71,7 +67,7 @@ router.beforeEach((to, from, next) => {
   // 判断是否需要登录
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     // 判断是否已经登录
-    if (sessionStorage.getItem('username')) {
+    if (localStorage.getItem('username')) {
       next()
     } else {
       next({

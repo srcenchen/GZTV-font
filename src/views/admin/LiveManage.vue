@@ -110,13 +110,11 @@ watchEffect(() => {
         width="auto"
       >
         <template v-slot:activator="{ props }">
-          <v-btn
-            color="primary"
-
+          <el-button
             v-bind="props"
           >
             发起直播
-          </v-btn>
+          </el-button>
         </template>
         <v-card class="lg:w-256 w-78">
           <v-card-title class="text-h5">
