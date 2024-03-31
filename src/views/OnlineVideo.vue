@@ -54,6 +54,7 @@ onMounted(() => {
     });
     axios.get('/api/video/get-video-list').then((res) => {
       items.value = res.data.data.list.reverse()
+      tab_item.value = items.value
       item_temp.value = res.data.data.list;
       loading.value = false
     })

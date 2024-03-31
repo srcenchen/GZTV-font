@@ -8,7 +8,7 @@ const tab_item = ref([])
 const tabs = ref([])
 const items = ref([])
 const loading = ref(true)
-const view_select_value = ref(-3)
+const view_select_value = ref(0)
 const new_select = ref(-2)
 const new_title = ref("")
 const new_description = ref("")
@@ -24,14 +24,6 @@ const progress = ref(0)
 const submit_video_dialog = ref(false)
 const group_data_view = ref()
 onMounted(() => {
-  load()
-})
-const group_data = ref([])
-const m_item = ref()
-const item_temp = ref()
-
-const search_value = ref('')
-function load() {
   // 递归函数，将扁平结构的数组转换成具有层级关系的数组
   function convertToTree(data, parentId) {
     const result = [];
@@ -51,24 +43,6 @@ function load() {
     });
     return result;
   }
-
-
-  axios.get('/api/video/get-video-list').then((res) => {
-    // 将res.data.data.list 中GroupId强制转为Int类型
-    res.data.data.list.forEach((item) => {
-      item.GroupId = parseInt(item.GroupId)
-    })
-    const video = res.data.data.list.filter((item) => {
-      return item.GroupId !== -1;
-    });
-    video.reverse();
-    item_temp.value = video
-    // group.reverse();
-    items.value = video;
-
-    loading.value = false
-  })
-
   axios.get('/api/video/get-video-group-list').then((res) => {
     // 将res.data.data.list 中GroupId强制转为Int类型
     res.data.data.list.forEach((item) => {
@@ -84,7 +58,7 @@ function load() {
         label: "未分组"
       }
     )
-    group_data_view.value = group_data.value
+    group_data_view.value = Array.from(group_data.value);
     group_data_view.value.unshift(
       {
         value: -3,
@@ -94,7 +68,34 @@ function load() {
     console.log(group_data)
     loading.value = false;
   })
+  load()
+  view_select_value.value = -3
 
+})
+const group_data = ref([])
+const m_item = ref()
+const item_temp = ref()
+
+const search_value = ref('')
+
+function load() {
+  axios.get('/api/video/get-video-list').then((res) => {
+    // 将res.data.data.list 中GroupId强制转为Int类型
+    res.data.data.list.forEach((item) => {
+      item.GroupId = parseInt(item.GroupId)
+    })
+    const video = res.data.data.list.filter((item) => {
+      return item.GroupId !== -1;
+    });
+    video.reverse();
+    item_temp.value = video
+    tab_item.value = items.value
+
+    // group.reverse();
+    items.value = video;
+
+    loading.value = false
+  })
 }
 
 function getContent(item) {
@@ -277,20 +278,28 @@ watch(view_select_value, (newValue, oldValue) => {
   tab_item.value = items.value
 })
 
+function submit_button() {
+  submit_video_dialog.value = true;
+  if (view_select_value.value !== -3) {
+    new_select.value = view_select_value.value
+  }
+  console.log(view_select_value.value)
+}
+
 </script>
 
 <template>
   <div className="flex flex-col m-5">
-    <div class="flex">
+    <div class="flex mb-2">
       <h2>视频管理</h2>
-      <el-input style="width: 240px" class="ml-4" placeholder="在当前页搜索" :prefix-icon="Search" v-model="search_value"></el-input>
+      <el-input style="width: 200px" class="ml-4" placeholder="在当前页搜索" :prefix-icon="Search" size="small"
+                v-model="search_value"></el-input>
     </div>
 
-    <el-tree-select :data="group_data" v-model="view_select_value" check-strictly :render-after-expand="false"/>
+    <el-tree-select :data="group_data_view" v-model="view_select_value" check-strictly :render-after-expand="false"/>
     <div class="mt-2">
       <el-button
-        v-bind="props"
-        @click="submit_video_dialog = true; new_select = view_select_value"
+        @click="submit_button"
       >
         发布视频
       </el-button>
@@ -300,14 +309,18 @@ watch(view_select_value, (newValue, oldValue) => {
       <div class="flex flex-wrap">
         <div v-for="item in items" :key="item.id" class="2xl:w-1/5 xl:w-1/4 lg:w-1/3 md:w-1/3 w-full pr-4 coil mb-2">
           <v-card>
-            <v-img :src="'/resource/upload/images/' + item.HeadImage " class="rounded w-full aspect-video" cover v-if="!item.ParentGroup"/>
+            <v-img :src="'/resource/upload/images/' + item.HeadImage " class="rounded w-full aspect-video" cover
+                   v-if="!item.ParentGroup"/>
             <v-img src="@/assets/file_logo.png" class="rounded w-full aspect-video" v-else/>
             <div class="flex items-center mt-2">
               <div class="text-subtitle-2 ml-2 mr-2 truncate">{{ item.Title }}</div>
-              <v-badge v-if="item.IsHideMain || item.IsHideGroup" :content="getContent(item)" color="info" class="ml-2"></v-badge>
+              <v-badge v-if="item.IsHideMain || item.IsHideGroup" :content="getContent(item)" color="info"
+                       class="ml-2"></v-badge>
             </div>
             <div class="text-subtitle-2 font-weight-light ml-2 mr-2 truncate">{{ item.Description }}</div>
-            <div class="text-subtitle-2 font-weight-light ml-2 mb-2 mr-2 truncate">{{ item.UploadDate.replace("Z", "").replace("T", " ") }}</div>
+            <div class="text-subtitle-2 font-weight-light ml-2 mb-2 mr-2 truncate">
+              {{ item.UploadDate.replace("Z", "").replace("T", " ") }}
+            </div>
             <div class="flex items-center mt-2 mb-5 ml-4 w-100">
               <v-badge :content="getGroup(item)" color="success"></v-badge>
 
@@ -317,7 +330,6 @@ watch(view_select_value, (newValue, oldValue) => {
                 <v-btn
                   color="primary"
                   class="mr-2 mb-2"
-                  v-bind="props"
                   variant="flat"
                   @click='m_item = item; new_title = item.Title; new_description = item.Description; new_select = item.GroupId; detail_video_dialog = true; is_hide_main = item.IsHideMain;is_hide_group = item.IsHideGroup'
                 >

@@ -5,8 +5,7 @@
       <v-img src="@/assets/logo.png" width="256" transition="none" @click="router.push('/online-video')"/>
     </v-app-bar-title>
     <v-btn icon @click="check">
-      <v-icon v-if="!is_login">mdi-account</v-icon>
-      <v-icon v-else>mdi-logout</v-icon>
+      <v-icon >mdi-account</v-icon>
     </v-btn>
   </v-app-bar>
 
