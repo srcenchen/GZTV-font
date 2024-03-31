@@ -46,6 +46,7 @@ const items = ref([])
 const item_temp = ref([])
 const loading = ref(true)
 const tab_item = ref([])
+const group_id = ref(0)
 onMounted(() => {
   axios.get('/api/video/get-video-group-list').then((res) => {
     groups.value = res.data.data.list
@@ -53,7 +54,9 @@ onMounted(() => {
       return item.ParentGroup === "-1";
     });
     axios.get('/api/video/get-video-list').then((res) => {
-      items.value = res.data.data.list.reverse()
+      items.value = res.data.data.list.reverse().filter((item) => {
+        return item.IsHideMain !== true;
+      });
       tab_item.value = items.value
       item_temp.value = res.data.data.list;
       loading.value = false
@@ -73,7 +76,7 @@ function click_item(item) {
     router.push("/video-player/?id=" + item.Id)
 }
 
-const group_id = ref(0)
+
 watch(group_id, (group_id_val, oldValue) => {
   // console.log(group_id_val)
   if (group_id_val === 0) {
