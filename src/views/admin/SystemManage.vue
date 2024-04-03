@@ -6,6 +6,7 @@ const version = ref('v0.0.0')
 const new_password = ref('')
 const username = ref(localStorage.getItem("username"))
 const notice = ref("")
+const title = ref("")
 // 获取远端数据
 import axios from 'axios'
 import {POSITION, useToast} from "vue-toastification";
@@ -19,6 +20,9 @@ onMounted(() => {
   })
   axios.get('/api/setting/get-notice').then(res => {
     notice.value = res.data.data.notice
+  })
+  axios.get('/api/setting/get-title').then(res => {
+    title.value = res.data.data.Title
   })
 })
 watchEffect(() => {
@@ -62,12 +66,33 @@ function submit_notice() {
     }
   })
 }
+
+function submit_title() {
+  axios.get('/api/setting/set-title?title=' + title.value).then(res => {
+    const toast = useToast();
+    if (res.data.code === 0) {
+      // Use it!
+      toast.success("设置成功", {position: POSITION.TOP_CENTER, timeout: 1000});
+    } else {
+      toast.error("操作失败", {position: POSITION.TOP_CENTER, timeout: 1000});
+    }
+  })
+}
 </script>
 
 <template>
   <div className="flex flex-col m-5">
     <h2>系统设置</h2>
-
+    <h4 class="mt-3 mb-2">网站标题</h4>
+    <v-text-field
+      v-model="title"
+      label="网站标题"
+      outlined
+      class="lg:w-1/2"
+    ></v-text-field>
+    <div>
+      <v-btn variant="outlined" @click="submit_title">保存标题</v-btn>
+    </div>
     <h4 class="mt-3">公告管理</h4>
     <div class="flex flex-col mt-2">
       <v-textarea v-model="notice" variant="outlined"></v-textarea>

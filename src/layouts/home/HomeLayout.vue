@@ -31,6 +31,7 @@ import {useToast} from "vue-toastification";
 
 const is_show = ref(false)
 const {mobile} = useDisplay()
+const title = ref("Loading...")
 if (!mobile.value)
   is_show.value = true
 const mob = computed(() => {
@@ -47,9 +48,13 @@ function noticePad() {
     toast.info(data, {timeout: 2000});
   });
 
+  axios.get("/api/setting/get-title").then((res) => {
+    // console.log(res);
+    title.value = res.data["data"]["Title"];
+    document.title = title.value
+  });
 }
 noticePad()
-document.title = "赣中电视台";
 </script>
 
 <style>

@@ -24,7 +24,7 @@
           </div>
           <div class="text-subtitle-2 font-weight-light ml-2 mb-2 mr-2 truncate">{{ item.Description }}</div>
           <div class="flex items-center mt-2 mb-5 ml-4">
-            <v-badge :content="getGroup(item)" color="info"></v-badge>
+            <v-badge  :content="getGroup(item)" color="info"></v-badge>
           </div>
         </v-card>
       </div>
