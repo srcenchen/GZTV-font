@@ -23,6 +23,7 @@ const is_hide_group = ref(false)
 const progress = ref(0)
 const submit_video_dialog = ref(false)
 const group_data_view = ref()
+const refresh_group = ref(false)
 onMounted(() => {
   // 递归函数，将扁平结构的数组转换成具有层级关系的数组
   function convertToTree(data, parentId) {
@@ -93,8 +94,8 @@ function load() {
 
     // group.reverse();
     items.value = video;
-
     loading.value = false
+    refresh_group.value = !refresh_group.value
   })
 }
 
@@ -266,13 +267,13 @@ watchEffect(() => {
   }
 })
 
-watch(view_select_value, (newValue, oldValue) => {
+watch([view_select_value,refresh_group], (newValue, oldValue) => {
   // console.log(group_id.value)
-  if (newValue === -3) {
+  if (newValue[0] === -3) {
     items.value = item_temp.value
   } else {
     items.value = item_temp.value.filter((item) => {
-      return item.GroupId === newValue
+      return item.GroupId === newValue[0]
     });
   }
   tab_item.value = items.value
@@ -292,11 +293,11 @@ function submit_button() {
   <div className="flex flex-col m-5">
     <div class="flex mb-2">
       <h2>视频管理</h2>
-      <el-input style="width: 200px" class="ml-4" placeholder="在当前页搜索" :prefix-icon="Search" size="small"
+      <el-input style="width: 220px" class="ml-4" placeholder="在当前页搜索" :prefix-icon="Search"
                 v-model="search_value"></el-input>
     </div>
 
-    <el-tree-select :data="group_data_view" v-model="view_select_value" check-strictly :render-after-expand="false"/>
+    <el-tree-select default-expand-all :data="group_data_view" v-model="view_select_value" check-strictly :render-after-expand="false"/>
     <div class="mt-2">
       <el-button
         @click="submit_button"

@@ -139,6 +139,7 @@ function submit(parentGroup) {
         :data="group_data"
         accordion
         node-key="id"
+        default-expand-all
         :expand-on-click-node="false"
       >
         <template #default="{ node, data }">
