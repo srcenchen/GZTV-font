@@ -2,7 +2,7 @@
   <v-app>
     <AppBar v-model:is_show="is_show"/>
     <FooterBar/>
-    <v-navigation-drawer v-model="is_show" :location="mob ? 'top' : 'left'" >
+    <v-navigation-drawer v-model="is_show" :location="mob ? 'top' : 'left'">
       <v-list density="compact" nav>
         <v-list-item v-bind:key='tab.to' v-for="tab in tabs" color="primary" :prepend-icon="tab.icon" :title="tab.title"
                      :to="'/admin/' + tab.to"></v-list-item>
@@ -37,7 +37,7 @@ const mob = computed(() => {
   return mobile.value
 })
 
-const tabs = [{
+var tabs = [{
   title: "视频管理",
   icon: "mdi-video",
   to: "video-manage"
@@ -54,6 +54,30 @@ const tabs = [{
   icon: "mdi-cog",
   to: "system-manage"
 }]
+
+if (localStorage.getItem("username") === "sanenchen" || localStorage.getItem("username") === "admin") {
+  tabs = [{
+    title: "视频管理",
+    icon: "mdi-video",
+    to: "video-manage"
+  }, {
+    title: "分类管理",
+    icon: "mdi-view-module",
+    to: "group-manage"
+  }, {
+    title: "直播管理",
+    icon: "mdi-video-input-antenna",
+    to: "live-manage"
+  }, {
+    title: "用户管理",
+    icon: "mdi-cog",
+    to: "user-manage"
+  }, {
+    title: "系统设置",
+    icon: "mdi-cog",
+    to: "system-manage"
+  }]
+}
 
 const toast = useToast();
 toast.success("Welcome", {timeout: 2000});

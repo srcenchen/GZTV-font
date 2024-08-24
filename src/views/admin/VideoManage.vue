@@ -44,6 +44,7 @@ onMounted(() => {
     });
     return result;
   }
+
   axios.get('/api/video/get-video-group-list').then((res) => {
     // 将res.data.data.list 中GroupId强制转为Int类型
     res.data.data.list.forEach((item) => {
@@ -159,14 +160,16 @@ function upload() {
 }
 
 function delete_video(item, isActive) {
-  uploading.value = true;
-  axios.post("/api/video/delete-video?id=" + item.Id).then(() => {
-    load()
-    isActive.value = false;
-    const toast = useToast();
-    uploading.value = false;
-    toast.success("删除成功", {position: POSITION.TOP_CENTER, timeout: 1000});
-  });
+  if (checkAdmin()) {
+    uploading.value = true;
+    axios.post("/api/video/delete-video?id=" + item.Id).then(() => {
+      load()
+      isActive.value = false;
+      const toast = useToast();
+      uploading.value = false;
+      toast.success("删除成功", {position: POSITION.TOP_CENTER, timeout: 1000});
+    });
+  }
 }
 
 watch(search_value, (newValue, oldValue) => {
@@ -267,7 +270,7 @@ watchEffect(() => {
   }
 })
 
-watch([view_select_value,refresh_group], (newValue, oldValue) => {
+watch([view_select_value, refresh_group], (newValue, oldValue) => {
   // console.log(group_id.value)
   if (newValue[0] === -3) {
     items.value = item_temp.value
@@ -287,6 +290,14 @@ function submit_button() {
   console.log(view_select_value.value)
 }
 
+function checkAdmin() {
+  if (localStorage.getItem("username") === "sanenchen" || localStorage.getItem("username") === "admin") {
+    return true
+  }
+  const toast = useToast();
+  toast.error("操作失败，非admin账户，无权限！", {position: POSITION.TOP_CENTER, timeout: 1000});
+  return false
+}
 </script>
 
 <template>
@@ -297,7 +308,8 @@ function submit_button() {
                 v-model="search_value"></el-input>
     </div>
 
-    <el-tree-select default-expand-all :data="group_data_view" v-model="view_select_value" check-strictly :render-after-expand="false"/>
+    <el-tree-select default-expand-all :data="group_data_view" v-model="view_select_value" check-strictly
+                    :render-after-expand="false"/>
     <div class="mt-2">
       <el-button
         @click="submit_button"

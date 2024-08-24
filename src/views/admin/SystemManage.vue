@@ -1,19 +1,21 @@
 <script setup>
 import {ref, onMounted, watchEffect} from 'vue'
 import md5 from 'md5'
+
 const radios = ref('')
 const version = ref('v0.0.0')
 const new_password = ref('')
 const username = ref(localStorage.getItem("username"))
 const notice = ref("")
 const title = ref("")
+const footer = ref("")
 // 获取远端数据
 import axios from 'axios'
 import {POSITION, useToast} from "vue-toastification";
+
 onMounted(() => {
   axios.get('/api/setting/get-pull-setting').then(res => {
     radios.value = res.data.data.pull_setting
-    console.log(radios.value)
   })
   axios.get('/api/setting/get-version').then(res => {
     version.value = res.data.data.version
@@ -24,10 +26,13 @@ onMounted(() => {
   axios.get('/api/setting/get-title').then(res => {
     title.value = res.data.data.Title
   })
+  axios.get('/api/setting/get-footer').then(res => {
+    footer.value = res.data.data.Footer
+  })
 })
 watchEffect(() => {
   axios.get('/api/setting/set-pull-setting?pull_setting=' + radios.value).then(res => {
-    res
+
   })
 
 })
@@ -56,27 +61,51 @@ function change_password() {
 }
 
 function submit_notice() {
-  axios.get('/api/setting/set-notice?notice=' + notice.value).then(res => {
-    const toast = useToast();
-    if (res.data.code === 0) {
-      // Use it!
-      toast.success("设置成功", {position: POSITION.TOP_CENTER, timeout: 1000});
-    } else {
-      toast.error("操作失败", {position: POSITION.TOP_CENTER, timeout: 1000});
-    }
-  })
+  if (checkAdmin())
+    axios.get('/api/setting/set-notice?notice=' + notice.value).then(res => {
+      const toast = useToast();
+      if (res.data.code === 0) {
+        // Use it!
+        toast.success("设置成功", {position: POSITION.TOP_CENTER, timeout: 1000});
+      } else {
+        toast.error("操作失败", {position: POSITION.TOP_CENTER, timeout: 1000});
+      }
+    })
 }
 
 function submit_title() {
-  axios.get('/api/setting/set-title?title=' + title.value).then(res => {
-    const toast = useToast();
-    if (res.data.code === 0) {
-      // Use it!
-      toast.success("设置成功", {position: POSITION.TOP_CENTER, timeout: 1000});
-    } else {
-      toast.error("操作失败", {position: POSITION.TOP_CENTER, timeout: 1000});
-    }
-  })
+  if (checkAdmin())
+    axios.get('/api/setting/set-title?title=' + title.value).then(res => {
+      const toast = useToast();
+      if (res.data.code === 0) {
+        // Use it!
+        toast.success("设置成功", {position: POSITION.TOP_CENTER, timeout: 1000});
+      } else {
+        toast.error("操作失败", {position: POSITION.TOP_CENTER, timeout: 1000});
+      }
+    })
+}
+
+function submit_footer() {
+  if (checkAdmin())
+    axios.get('/api/setting/set-footer?footer=' + footer.value).then(res => {
+      const toast = useToast();
+      if (res.data.code === 0) {
+        // Use it!
+        toast.success("设置成功", {position: POSITION.TOP_CENTER, timeout: 1000});
+      } else {
+        toast.error("操作失败", {position: POSITION.TOP_CENTER, timeout: 1000});
+      }
+    })
+}
+
+function checkAdmin() {
+  if (localStorage.getItem("username") === "sanenchen" || localStorage.getItem("username") === "admin") {
+    return true
+  }
+  const toast = useToast();
+  toast.error("操作失败，非admin账户，无权限！", {position: POSITION.TOP_CENTER, timeout: 1000});
+  return false
 }
 </script>
 
@@ -93,6 +122,16 @@ function submit_title() {
     <div>
       <v-btn variant="outlined" @click="submit_title">保存标题</v-btn>
     </div>
+    <h4 class="mt-3 mb-2">网站页脚</h4>
+    <v-text-field
+      v-model="footer"
+      label="网站页脚"
+      outlined
+      class="lg:w-1/2"
+    ></v-text-field>
+    <div>
+      <v-btn variant="outlined" @click="submit_footer">保存页脚</v-btn>
+    </div>
     <h4 class="mt-3">公告管理</h4>
     <div class="flex flex-col mt-2">
       <v-textarea v-model="notice" variant="outlined"></v-textarea>
@@ -107,7 +146,7 @@ function submit_title() {
       outlined
       class="lg:w-1/2"
       v-model="username"
-      ></v-text-field>
+    ></v-text-field>
     <v-text-field
       v-model="new_password"
       label="新密码"
@@ -142,8 +181,12 @@ function submit_title() {
     </p>
     <h4 class="mt-2">项目源码仓库</h4>
     <div class="mt-2">
-      <v-btn variant="outlined" onclick=' window.open("https://github.com/srcenchen/eGZ-GZTV/");' class="w-30 mr-2">Github</v-btn>
-      <v-btn variant="outlined" onclick='window.open("https://github.com/srcenchen/eGZ-GZTV/releases/latest/");' class="w-30">最新发行版</v-btn>
+      <v-btn variant="outlined" onclick=' window.open("https://github.com/srcenchen/eGZ-GZTV/");' class="w-30 mr-2">
+        Github
+      </v-btn>
+      <v-btn variant="outlined" onclick='window.open("https://github.com/srcenchen/eGZ-GZTV/releases/latest/");'
+             class="w-30">最新发行版
+      </v-btn>
     </div>
 
   </div>

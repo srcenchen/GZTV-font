@@ -46,11 +46,17 @@ const username = ref('')
 const password = ref('')
 
 function check() {
+  if(window.location.pathname.includes("admin")) {
+    localStorage.clear()
+    router.push("/admin")
+    return
+  }
   // 判断sessionStorage中是否有账号密码
   if (localStorage.getItem("username") && localStorage.getItem("password")) {
     router.push("/admin")
     return
   }
+
   dialog.value = true
 }
 import axios from "axios";

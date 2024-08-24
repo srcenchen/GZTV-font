@@ -46,6 +46,10 @@ const routes = [
         component: () => import('@/views/admin/LiveManage.vue'),
       },
       {
+        path: 'user-manage',
+        component: () => import('@/views/admin/UserManage.vue'),
+      },
+      {
         path: 'system-manage',
         component: () => import('@/views/admin/SystemManage.vue'),
       }

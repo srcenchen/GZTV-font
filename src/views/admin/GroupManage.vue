@@ -56,13 +56,23 @@ const delDialogVisible = ref(false)
 const currentNodeID = ref('')
 
 function delete_group(currentNodeID) {
-  axios.post("/api/video/del-video-group?id=" + currentNodeID).then(() => {
-    load()
-    const toast = useToast();
-    toast.success("删除成功", {position: POSITION.TOP_CENTER, timeout: 1000});
-  });
+  if (checkAdmin())
+    axios.post("/api/video/del-video-group?id=" + currentNodeID).then(() => {
+      load()
+      const toast = useToast();
+      toast.success("删除成功", {position: POSITION.TOP_CENTER, timeout: 1000});
+    });
+
 }
 
+function checkAdmin() {
+  if (localStorage.getItem("username") === "sanenchen" || localStorage.getItem("username") === "admin") {
+    return true
+  }
+  const toast = useToast();
+  toast.error("操作失败，非admin账户，无权限！", {position: POSITION.TOP_CENTER, timeout: 1000});
+  return false
+}
 
 function submit(parentGroup) {
   // 输入检查
@@ -83,7 +93,7 @@ function submit(parentGroup) {
     const toast = useToast();
     toast.success("发布成功", {position: POSITION.TOP_CENTER, timeout: 1000});
     new_title.value = ""
-    description.value='description'
+    description.value = 'description'
   });
 }
 </script>
@@ -146,7 +156,8 @@ function submit(parentGroup) {
         <span class="custom-tree-node">
           <span>{{ node.label }}</span>
           <span>
-            <v-btn variant="text" @click="currentNodeID=data.id; subDialogVisible = true;description=''">添加子分类</v-btn>
+            <v-btn variant="text"
+                   @click="currentNodeID=data.id; subDialogVisible = true;description=''">添加子分类</v-btn>
             <v-btn variant="text" @click="currentNodeID=data.id;delDialogVisible=true">删除</v-btn>
           </span>
         </span>
